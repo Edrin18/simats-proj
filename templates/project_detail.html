@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.subject_name }} - SIMATS Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 mb-4">
+        <a href="{{ url_for('index') }}" class="hover:text-purple-600">Home</a> →
+        <a href="{{ url_for('projects') }}" class="hover:text-purple-600">Projects</a> →
+        <span class="text-gray-800">{{ project.course_code }}</span>
+    </nav>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <!-- Header -->
+        <div class="gradient-bg text-white p-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-sm font-semibold">{{
+                            project.course_code }}</span>
+                        <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-sm">Semester {{
+                            project.semester }}</span>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-2">{{ project.subject_name }}</h1>
+                    <p class="text-purple-100"><i class="fas fa-chalkboard-teacher mr-2"></i> {{ project.professor }}
+                    </p>
+                </div>
+                <div class="text-center bg-white/10 backdrop-blur rounded-xl p-4">
+                    <div class="text-3xl font-bold">{{ project.verified_count }}</div>
+                    <div class="text-sm text-purple-100">Verified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Left Column - Details -->
+                <div class="md:col-span-2 space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Description</h3>
+                        <p class="text-gray-600 leading-relaxed">{{ project.description }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Tech Stack</h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tech in project.tech_stack.split(',') %}
+                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{{ tech.strip()
+                                }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if project.github_link %}
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">GitHub Repository</h3>
+                        <a href="{{ project.github_link }}" target="_blank"
+                            class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                            <i class="fab fa-github mr-2 text-xl"></i>
+                            View Source Code
+                            <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if project.demo_video %}
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Demo Video</h3>
+                        <a href="{{ project.demo_video }}" target="_blank"
+                            class="inline-flex items-center text-red-600 hover:text-red-800">
+                            <i class="fab fa-youtube mr-2 text-xl"></i>
+                            Watch Demo
+                            <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Verification Section -->
+                    <div class="bg-gray-50 rounded-xl p-6 mt-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Did this project work for you?</h3>
+                        <form action="{{ url_for('verify_project', id=project.id) }}" method="POST" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Your Roll Number</label>
+                                <input type="text" name="roll_number" required placeholder="e.g., 20CS001"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="worked" id="worked" checked
+                                    class="w-4 h-4 text-purple-600 rounded">
+                                <label for="worked" class="ml-2 text-gray-700">Yes, it worked perfectly!</label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Comments (optional)</label>
+                                <textarea name="comment" rows="2" placeholder="Any issues or tips for others..."
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+                            </div>
+                            <button type="submit"
+                                class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                                <i class="fas fa-check-circle mr-2"></i> Submit Verification
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Recent Verifications -->
+                    {% if verifications %}
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Recent Verifications</h3>
+                        <div class="space-y-3">
+                            {% for v in verifications %}
+                            <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg">
+                                <div class="{% if v.worked %}text-green-500{% else %}text-red-500{% endif %}">
+                                    <i
+                                        class="fas {% if v.worked %}fa-check-circle{% else %}fa-times-circle{% endif %} text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-600">{{ v.comment or "No comment provided" }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">By {{ v.user_roll }} • {{
+                                        v.created_at.strftime('%d %b %Y') }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Column - Downloads & Info -->
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-gray-800 mb-4">Download Files</h3>
+                        <div class="space-y-3">
+                            {% if project.project_file %}
+                            <a href="{{ url_for('download_file', type='project', id=project.id) }}"
+                                class="flex items-center justify-between w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition">
+                                <span><i class="fas fa-file-archive mr-2"></i> Project Files</span>
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if project.report_file %}
+                            <a href="{{ url_for('download_file', type='report', id=project.id) }}"
+                                class="flex items-center justify-between w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition">
+                                <span><i class="fas fa-file-pdf mr-2"></i> Report</span>
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if project.ppt_file %}
+                            <a href="{{ url_for('download_file', type='ppt', id=project.id) }}"
+                                class="flex items-center justify-between w-full bg-orange-600 text-white px-4 py-3 rounded-lg hover:bg-orange-700 transition">
+                                <span><i class="fas fa-file-powerpoint mr-2"></i> PPT</span>
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3 text-center">{{ project.downloads }} total downloads</p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-gray-800 mb-3">Uploader Info</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">{{ project.uploader.name }}</p>
+                                <p class="text-sm text-gray-500">{{ project.uploader.department }}</p>
+                                <p class="text-xs text-gray-400">Batch of {{ project.uploader.graduation_year }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-lightbulb text-yellow-600 mt-1"></i>
+                            <div class="text-sm text-yellow-800">
+                                <p class="font-semibold">Pro Tip:</p>
+                                <p>Always verify the project works before submitting. Check the verification count
+                                    above!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

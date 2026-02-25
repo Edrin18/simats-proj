@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Notes - SIMATS Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Share Your Notes</h1>
+        <p class="text-gray-600">Help others study better by uploading your organized notes</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            <!-- Student Info -->
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Roll Number *</label>
+                    <input type="text" name="roll_number" required placeholder="e.g., 20CS001"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" name="name" required placeholder="Your full name"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                    <select name="department" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Department</option>
+                        <option value="CSE">Computer Science (CSE)</option>
+                        <option value="ECE">Electronics & Comm (ECE)</option>
+                        <option value="EEE">Electrical & Electronics (EEE)</option>
+                        <option value="MECH">Mechanical</option>
+                        <option value="CIVIL">Civil</option>
+                        <option value="IT">Information Technology (IT)</option>
+                        <option value="AIDS">AI & Data Science (AIDS)</option>
+                        <option value="CSBS">CS & Business Systems (CSBS)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year *</label>
+                    <input type="number" name="graduation_year" required placeholder="e.g., 2024" min="2020" max="2030"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Course Info -->
+            <div class="border-t border-gray-200 pt-6">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Course Code *</label>
+                        <input type="text" name="course_code" required placeholder="e.g., 19CS205"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject Name *</label>
+                        <input type="text" name="subject_name" required placeholder="e.g., Database Management Systems"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Unit Number *</label>
+                        <select name="unit_number" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Unit</option>
+                            {% for i in range(1, 6) %}
+                            <option value="{{ i }}">Unit {{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes Title *</label>
+                        <input type="text" name="title" required placeholder="e.g., SQL Queries & Normalization"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+                <textarea name="description" rows="3" placeholder="Briefly describe what's covered in these notes..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            </div>
+
+            <!-- File Upload -->
+            <div
+                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition">
+                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                <p class="text-lg font-medium text-gray-700 mb-2">Upload your notes file</p>
+                <p class="text-sm text-gray-500 mb-4">PDF, Word, or scanned images (Max 50MB)</p>
+                <input type="file" name="note_file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    class="w-full max-w-xs mx-auto">
+            </div>
+
+            <!-- Submit -->
+            <div class="flex items-center justify-between pt-4">
+                <p class="text-sm text-gray-500">* Required fields</p>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition transform hover:scale-105">
+                    <i class="fas fa-upload mr-2"></i> Upload Notes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

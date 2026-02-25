@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}" - SIMATS Hub{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Search Results</h1>
+    <p class="text-gray-600">Found {{ projects|length }} projects and {{ notes|length }} notes for "<span
+            class="font-semibold text-purple-600">{{ query }}</span>"</p>
+</div>
+
+<!-- Projects Section -->
+{% if projects %}
+<div class="mb-12">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-project-diagram mr-2 text-purple-600"></i> Projects
+    </h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover border border-gray-100">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded">{{
+                        project.course_code }}</span>
+                    <span class="text-gray-400 text-sm">Sem {{ project.semester }}</span>
+                </div>
+                <h3 class="font-bold text-lg mb-2 text-gray-800">{{ project.subject_name }}</h3>
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ project.description }}</p>
+                <div class="flex items-center text-sm text-gray-500 mb-3">
+                    <i class="fas fa-chalkboard-teacher mr-2"></i> {{ project.professor }}
+                </div>
+                <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-code mr-2"></i> {{ project.tech_stack }}
+                </div>
+                <a href="{{ url_for('project_detail', id=project.id) }}"
+                    class="block w-full text-center bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                    View Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Notes Section -->
+{% if notes %}
+<div class="mb-12">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-book mr-2 text-blue-600"></i> Notes
+    </h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for note in notes %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover border border-gray-100">
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold">{{ note.course_code }}</span>
+                    <span class="bg-white/20 backdrop-blur px-2 py-1 rounded text-sm">Unit {{ note.unit_number }}</span>
+                </div>
+            </div>
+            <div class="p-6">
+                <h3 class="font-bold text-lg mb-2 text-gray-800">{{ note.title }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ note.subject_name }}</p>
+                <a href="{{ url_for('download_file', type='note', id=note.id) }}"
+                    class="block w-full text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-download mr-2"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- No Results -->
+{% if not projects and not notes %}
+<div class="text-center py-16">
+    <div class="text-6xl mb-4">😕</div>
+    <h3 class="text-xl font-semibold text-gray-800 mb-2">No results found</h3>
+    <p class="text-gray-600 mb-6">We couldn't find anything matching "{{ query }}"</p>
+    <div class="space-x-4">
+        <a href="{{ url_for('projects') }}"
+            class="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
+            Browse All Projects
+        </a>
+        <a href="{{ url_for('request_project') }}"
+            class="inline-block bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition">
+            Request Help
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
