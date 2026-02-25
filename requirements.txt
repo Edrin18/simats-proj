@@ -1,14 +1,4 @@
-# Delete auth folder templates (no longer needed)
-import os
-import shutil
-
-auth_folder = '/mnt/kimi/output/simats_hub/templates/auth'
-if os.path.exists(auth_folder):
-    shutil.rmtree(auth_folder)
-    print("✅ Deleted auth folder (no longer needed)")
-
-# Update requirements.txt - clean and simple
-requirements = '''Flask==3.0.0
+Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Werkzeug==3.0.1
-Gunicorn==21.2.0'''
+gunicorn==21.2.0
