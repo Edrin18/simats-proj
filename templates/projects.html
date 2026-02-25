@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Browse Projects - SIMATS Hub{% endblock %}
+{% block title %}Browse Projects - StudyShare{% endblock %}
 
 {% block content %}
 <div class="mb-8">
@@ -53,7 +53,7 @@
             </div>
 
             <h3 class="font-bold text-xl mb-2 text-gray-800">{{ project.subject_name }}</h3>
-            <p class="text-gray-600 text-sm mb-4 line-clamp-3">{{ project.description }}</p>
+            <p class="text-gray-600 text-sm mb-4 truncate-3-lines">{{ project.description }}</p>
 
             <div class="space-y-2 mb-4">
                 <div class="flex items-center text-sm text-gray-600">
@@ -66,7 +66,7 @@
                 </div>
                 <div class="flex items-center text-sm text-gray-600">
                     <i class="fas fa-user w-5 text-green-500"></i>
-                    <span>By {{ project.uploader.name }} ({{ project.uploader.graduation_year }})</span>
+                    <span>By {{ project.uploader_name }}</span>
                 </div>
             </div>
         </div>

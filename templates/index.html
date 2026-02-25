@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% block title %}StudyShare - Student Project & Notes Repository{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <div class="text-center py-16 animate-fade-in">
     <h1 class="text-5xl font-bold text-gray-900 mb-4">
-        Welcome to <span class="text-transparent bg-clip-text gradient-bg">SIMATS Hub</span>
+        Welcome to <span class="text-transparent bg-clip-text gradient-bg">StudyShare</span>
     </h1>
     <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-        The ultimate student repository for Saveetha School of Engineering.
+        The ultimate student repository for engineering students.
         Find past projects, study notes, and help each other ace every semester.
     </p>
 
@@ -16,7 +18,8 @@
         <div class="relative">
             <input type="text" name="q"
                 placeholder="Search projects, notes, course codes... (e.g., 19CS205, DBMS, Python)"
-                class="w-full px-6 py-4 rounded-full border-2 border-gray-200 focus:border-purple-500 focus:outline-none text-lg shadow-lg">
+                class="w-full px-6 py-4 rounded-full border-2 border-gray-200 focus:border-purple-500 focus:outline-none text-lg shadow-lg"
+                required>
             <button type="submit"
                 class="absolute right-2 top-2 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition">
                 <i class="fas fa-search"></i>
@@ -25,7 +28,7 @@
     </form>
 
     <!-- Stats -->
-    <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
         <div class="bg-white rounded-xl p-6 shadow-md card-hover">
             <div class="text-3xl font-bold text-purple-600">{{ stats.total_projects }}</div>
             <div class="text-gray-600">Projects Shared</div>
@@ -33,10 +36,6 @@
         <div class="bg-white rounded-xl p-6 shadow-md card-hover">
             <div class="text-3xl font-bold text-blue-600">{{ stats.total_notes }}</div>
             <div class="text-gray-600">Notes Uploaded</div>
-        </div>
-        <div class="bg-white rounded-xl p-6 shadow-md card-hover">
-            <div class="text-3xl font-bold text-green-600">{{ stats.total_users }}</div>
-            <div class="text-gray-600">Contributors</div>
         </div>
     </div>
 </div>
@@ -86,8 +85,8 @@
                         project.course_code }}</span>
                     <span class="text-gray-400 text-sm">Sem {{ project.semester }}</span>
                 </div>
-                <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-1">{{ project.subject_name }}</h3>
-                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ project.description }}</p>
+                <h3 class="font-bold text-lg mb-2 text-gray-800 truncate">{{ project.subject_name }}</h3>
+                <p class="text-gray-600 text-sm mb-3 truncate-2-lines">{{ project.description }}</p>
                 <div class="flex items-center text-sm text-gray-500 mb-3">
                     <i class="fas fa-chalkboard-teacher mr-2"></i> {{ project.professor }}
                 </div>

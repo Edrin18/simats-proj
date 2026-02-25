@@ -1,26 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
-import random
-import requests
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'simats-secret-key-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///simats_hub.db'
+app.config['SECRET_KEY'] = 'studyshare-secret-key-2024'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyshare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
-
-SMS_API_KEY = ''
-GOOGLE_CLIENT_ID = ''
-GOOGLE_CLIENT_SECRET = ''
-
-db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 
 UPLOAD_FOLDERS = {
     'project': 'static/uploads/projects',
@@ -32,26 +20,7 @@ UPLOAD_FOLDERS = {
 for folder in UPLOAD_FOLDERS.values():
     os.makedirs(folder, exist_ok=True)
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    roll_number = db.Column(db.String(20), unique=True, nullable=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)
-    phone = db.Column(db.String(15), unique=True, nullable=True)
-    department = db.Column(db.String(50), nullable=True)
-    graduation_year = db.Column(db.Integer, nullable=True)
-    auth_method = db.Column(db.String(20), default='traditional')
-    google_id = db.Column(db.String(100), unique=True, nullable=True)
-    is_verified = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class OTP(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    phone = db.Column(db.String(15), nullable=False)
-    otp_code = db.Column(db.String(6), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    is_used = db.Column(db.Boolean, default=False)
+db = SQLAlchemy(app)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,7 +35,8 @@ class Project(db.Model):
     report_file = db.Column(db.String(200))
     ppt_file = db.Column(db.String(200))
     demo_video = db.Column(db.String(500))
-    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    uploader_name = db.Column(db.String(100), nullable=False)
+    uploader_roll = db.Column(db.String(20), nullable=False)
     downloads = db.Column(db.Integer, default=0)
     verified_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -79,39 +49,17 @@ class Note(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     file_path = db.Column(db.String(200), nullable=False)
-    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    uploader_name = db.Column(db.String(100), nullable=False)
     rating_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Verification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    user_roll = db.Column(db.String(20), nullable=False)
+    user_name = db.Column(db.String(100), nullable=False)
     worked = db.Column(db.Boolean, default=True)
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class ProjectRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    course_code = db.Column(db.String(20), nullable=False)
-    subject_name = db.Column(db.String(100), nullable=False)
-    semester = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.Text)
-    requester_roll = db.Column(db.String(20), nullable=False)
-    fulfilled = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-def generate_otp():
-    return str(random.randint(100000, 999999))
-
-def send_sms_otp(phone, otp):
-    print(f"\n[TEST MODE] OTP for {phone}: {otp}")
-    print("[INFO] To send real SMS, set SMS_API_KEY environment variable\n")
-    return True
 
 @app.route('/')
 def index():
@@ -119,135 +67,9 @@ def index():
     recent_notes = Note.query.order_by(Note.created_at.desc()).limit(6).all()
     stats = {
         'total_projects': Project.query.count(),
-        'total_notes': Note.query.count(),
-        'total_users': User.query.count()
+        'total_notes': Note.query.count()
     }
     return render_template('index.html', projects=recent_projects, notes=recent_notes, stats=stats)
-
-@app.route('/login')
-def login():
-    return render_template('auth/login.html')
-
-@app.route('/auth/google')
-def google_auth():
-    flash('Google authentication is not configured. Please use Mobile OTP instead.', 'warning')
-    return redirect(url_for('login'))
-
-@app.route('/auth/phone', methods=['GET', 'POST'])
-def phone_auth():
-    if request.method == 'POST':
-        phone = request.form.get('phone', '').strip()
-        name = request.form.get('name', '').strip()
-        
-        if not phone or not name:
-            flash('Please provide both name and phone number.', 'error')
-            return redirect(url_for('phone_auth'))
-        
-        if not phone.isdigit() or len(phone) != 10:
-            flash('Please enter a valid 10-digit mobile number.', 'error')
-            return redirect(url_for('phone_auth'))
-        
-        otp_code = generate_otp()
-        expires_at = datetime.utcnow() + timedelta(minutes=10)
-        
-        otp_entry = OTP(phone=phone, otp_code=otp_code, expires_at=expires_at)
-        db.session.add(otp_entry)
-        db.session.commit()
-        
-        send_sms_otp(phone, otp_code)
-        
-        session['temp_phone'] = phone
-        session['temp_name'] = name
-        flash('OTP sent! Check your terminal/command prompt.', 'success')
-        return redirect(url_for('verify_otp'))
-    
-    return render_template('auth/phone_auth.html')
-
-@app.route('/auth/verify-otp', methods=['GET', 'POST'])
-def verify_otp():
-    if 'temp_phone' not in session:
-        return redirect(url_for('phone_auth'))
-    
-    if request.method == 'POST':
-        otp_entered = request.form.get('otp', '').strip()
-        phone = session.get('temp_phone')
-        name = session.get('temp_name')
-        
-        otp_record = OTP.query.filter_by(
-            phone=phone,
-            otp_code=otp_entered,
-            is_used=False
-        ).filter(OTP.expires_at > datetime.utcnow()).first()
-        
-        if not otp_record:
-            flash('Invalid or expired OTP. Please try again.', 'error')
-            return redirect(url_for('verify_otp'))
-        
-        otp_record.is_used = True
-        
-        user = User.query.filter_by(phone=phone).first()
-        
-        if not user:
-            user = User(
-                name=name,
-                phone=phone,
-                auth_method='phone',
-                is_verified=True
-            )
-            db.session.add(user)
-            db.session.commit()
-            flash('Account created successfully!', 'success')
-        else:
-            flash('Welcome back!', 'success')
-        
-        login_user(user, remember=True)
-        
-        session.pop('temp_phone', None)
-        session.pop('temp_name', None)
-        
-        if not user.roll_number:
-            return redirect(url_for('complete_profile'))
-        
-        return redirect(url_for('index'))
-    
-    return render_template('auth/verify_otp.html', phone=session.get('temp_phone'))
-
-@app.route('/auth/resend-otp')
-def resend_otp():
-    if 'temp_phone' not in session:
-        return redirect(url_for('phone_auth'))
-    
-    phone = session['temp_phone']
-    otp_code = generate_otp()
-    expires_at = datetime.utcnow() + timedelta(minutes=10)
-    
-    otp_entry = OTP(phone=phone, otp_code=otp_code, expires_at=expires_at)
-    db.session.add(otp_entry)
-    db.session.commit()
-    
-    send_sms_otp(phone, otp_code)
-    flash('New OTP sent! Check your terminal.', 'success')
-    return redirect(url_for('verify_otp'))
-
-@app.route('/complete-profile', methods=['GET', 'POST'])
-@login_required
-def complete_profile():
-    if request.method == 'POST':
-        current_user.roll_number = request.form.get('roll_number')
-        current_user.department = request.form.get('department')
-        current_user.graduation_year = int(request.form.get('graduation_year'))
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('index'))
-    
-    return render_template('auth/complete_profile.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
 
 @app.route('/projects')
 def projects():
@@ -276,14 +98,9 @@ def project_detail(id):
     return render_template('project_detail.html', project=project, verifications=verifications)
 
 @app.route('/upload_project', methods=['GET', 'POST'])
-@login_required
 def upload_project():
     if request.method == 'POST':
-        if not current_user.roll_number:
-            flash('Please complete your profile first.', 'warning')
-            return redirect(url_for('complete_profile'))
-        
-        roll = current_user.roll_number
+        roll = request.form['uploader_roll']
         
         project_file = request.files.get('project_file')
         report_file = request.files.get('report_file')
@@ -317,7 +134,8 @@ def upload_project():
             project_file=project_filename,
             report_file=report_filename,
             ppt_file=ppt_filename,
-            uploader_id=current_user.id
+            uploader_name=request.form['uploader_name'],
+            uploader_roll=roll
         )
         
         db.session.add(project)
@@ -340,16 +158,13 @@ def notes():
     return render_template('notes.html', notes=notes, course_filter=course_filter)
 
 @app.route('/upload_note', methods=['GET', 'POST'])
-@login_required
 def upload_note():
     if request.method == 'POST':
-        if not current_user.roll_number:
-            flash('Please complete your profile first.', 'warning')
-            return redirect(url_for('complete_profile'))
+        roll = request.form['uploader_roll']
         
         note_file = request.files['note_file']
         if note_file and note_file.filename:
-            filename = secure_filename(f"{current_user.roll_number}_{note_file.filename}")
+            filename = secure_filename(f"{roll}_{note_file.filename}")
             note_file.save(os.path.join(UPLOAD_FOLDERS['note'], filename))
             
             note = Note(
@@ -359,7 +174,7 @@ def upload_note():
                 title=request.form['title'],
                 description=request.form.get('description', ''),
                 file_path=filename,
-                uploader_id=current_user.id
+                uploader_name=request.form['uploader_name']
             )
             
             db.session.add(note)
@@ -394,12 +209,11 @@ def download_file(type, id):
     return redirect(url_for('index'))
 
 @app.route('/verify_project/<int:id>', methods=['POST'])
-@login_required
 def verify_project(id):
     project = Project.query.get_or_404(id)
     verification = Verification(
         project_id=id,
-        user_roll=current_user.roll_number or current_user.name,
+        user_name=request.form['user_name'],
         worked=request.form.get('worked') == 'on',
         comment=request.form.get('comment', '')
     )
@@ -415,18 +229,8 @@ def verify_project(id):
 @app.route('/request_project', methods=['GET', 'POST'])
 def request_project():
     if request.method == 'POST':
-        req = ProjectRequest(
-            course_code=request.form['course_code'].upper(),
-            subject_name=request.form['subject_name'],
-            semester=int(request.form['semester']),
-            description=request.form.get('description', ''),
-            requester_roll=request.form['roll_number']
-        )
-        db.session.add(req)
-        db.session.commit()
         flash('Request submitted! Seniors will be notified.', 'success')
         return redirect(url_for('projects'))
-    
     return render_template('request_project.html')
 
 @app.route('/search')
