@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'studyshare-secret-key-2024'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyshare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 10MB for Render free tier
 
 ADMIN_PASSWORD = 'edrin1804081672008'
 
@@ -442,6 +442,11 @@ def admin_upload_note():
         return redirect(url_for('admin_panel'))
     
     return render_template('admin_upload_note.html')
+# Increase upload timeout for Render
+@app.errorhandler(413)
+def too_large(e):
+    flash('File too large. Maximum size is 10MB per file.', 'error')
+    return redirect(request.url), 413
 
 if __name__ == '__main__':
     with app.app_context():

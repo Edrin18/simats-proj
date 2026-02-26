@@ -5,17 +5,28 @@
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-5xl font-bold mb-4">Welcome to StudyShare</h1>
         <p class="text-xl mb-8 opacity-90">Share projects, exchange notes, learn together</p>
-        <div class="flex justify-center gap-4 flex-wrap">
+
+        <!-- Desktop: 4 buttons in a row | Mobile: 2x2 grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-8">
+            <a href="{{ url_for('projects') }}"
+                class="bg-white text-purple-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg flex items-center justify-center gap-2">
+                <i class="fas fa-eye"></i> View Projects
+            </a>
+            <a href="{{ url_for('notes') }}"
+                class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg flex items-center justify-center gap-2">
+                <i class="fas fa-eye"></i> View Notes
+            </a>
             <a href="{{ url_for('upload_project') }}"
-                class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg">
-                <i class="fas fa-upload mr-2"></i>Upload Project
+                class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition flex items-center justify-center gap-2">
+                <i class="fas fa-upload"></i> Upload Project
             </a>
             <a href="{{ url_for('upload_note') }}"
-                class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition">
-                <i class="fas fa-file-upload mr-2"></i>Upload Notes
+                class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition flex items-center justify-center gap-2">
+                <i class="fas fa-file-upload"></i> Upload Notes
             </a>
         </div>
-        <div class="mt-8 flex justify-center gap-8 text-sm">
+
+        <div class="flex justify-center gap-8 text-sm">
             <div class="bg-white/20 px-4 py-2 rounded-lg">
                 <i class="fas fa-project-diagram mr-2"></i>{{ stats.total_projects }} Projects
             </div>
