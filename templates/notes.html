@@ -1,94 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}Study Notes - StudyShare{% endblock %}
-
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Study Notes Repository</h1>
-    <p class="text-gray-600">Access organized notes by course and unit, uploaded by your seniors</p>
-</div>
-
-<!-- Search/Filter -->
-<div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
-    <form method="GET" action="{{ url_for('notes') }}" class="flex gap-4">
-        <div class="flex-1">
-            <input type="text" name="course" value="{{ course_filter }}"
-                placeholder="Search by course code (e.g., 19CS205)"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-search mr-2"></i> Search
-        </button>
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-gray-800">Study Notes</h1>
         <a href="{{ url_for('upload_note') }}"
-            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center">
-            <i class="fas fa-plus mr-2"></i> Upload Notes
+            class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-plus mr-2"></i>Upload Notes
         </a>
-    </form>
-</div>
-
-<!-- Notes Grid -->
-{% if notes.items %}
-<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    {% for note in notes.items %}
-    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover border border-gray-100">
-        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
-            <div class="flex justify-between items-center">
-                <span class="font-bold text-lg">{{ note.course_code }}</span>
-                <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-sm">Unit {{ note.unit_number
-                    }}</span>
-            </div>
-        </div>
-        <div class="p-6">
-            <h3 class="font-bold text-lg mb-2 text-gray-800">{{ note.title }}</h3>
-            <p class="text-gray-600 text-sm mb-4">{{ note.subject_name }}</p>
-
-            {% if note.description %}
-            <p class="text-gray-500 text-sm mb-4 truncate-2-lines">{{ note.description }}</p>
-            {% endif %}
-
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-user mr-1"></i> {{ note.uploader_name }}
-                </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-sm text-yellow-600">
-                        <i class="fas fa-star mr-1"></i> {{ note.rating_count }}
-                    </span>
-                    <a href="{{ url_for('download_file', type='note', id=note.id) }}"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
-                        <i class="fas fa-download mr-1"></i> Download
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
-    {% endfor %}
+
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <form method="get" class="flex gap-4">
+            <input type="text" name="course" placeholder="Search by Course Code" value="{{ course_filter }}"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-search mr-2"></i>Search
+            </button>
+            {% if course_filter %}
+            <a href="{{ url_for('notes') }}"
+                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for note in notes.items %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+            <div class="p-6">
+                <span
+                    class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold mb-3 inline-block">{{
+                    note.course_code }}</span>
+                <h3 class="text-xl font-bold mb-2 text-gray-800">{{ note.title }}</h3>
+                <p class="text-gray-600 mb-2">{{ note.subject_name }}</p>
+                {% if note.description %}
+                <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ note.description }}</p>
+                {% endif %}
+
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2 font-semibold">Available Chapters:</p>
+                    <div class="flex gap-2 flex-wrap">
+                        {% if note.file_path_1 %}
+                        <a href="{{ url_for('download_file', type='note', id=note.id, chapter=1) }}"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200 transition">
+                            <i class="fas fa-download mr-1"></i>Ch 1
+                        </a>
+                        {% endif %}
+                        {% if note.file_path_2 %}
+                        <a href="{{ url_for('download_file', type='note', id=note.id, chapter=2) }}"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200 transition">
+                            <i class="fas fa-download mr-1"></i>Ch 2
+                        </a>
+                        {% endif %}
+                        {% if note.file_path_3 %}
+                        <a href="{{ url_for('download_file', type='note', id=note.id, chapter=3) }}"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200 transition">
+                            <i class="fas fa-download mr-1"></i>Ch 3
+                        </a>
+                        {% endif %}
+                        {% if note.file_path_4 %}
+                        <a href="{{ url_for('download_file', type='note', id=note.id, chapter=4) }}"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200 transition">
+                            <i class="fas fa-download mr-1"></i>Ch 4
+                        </a>
+                        {% endif %}
+                        {% if note.file_path_5 %}
+                        <a href="{{ url_for('download_file', type='note', id=note.id, chapter=5) }}"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200 transition">
+                            <i class="fas fa-download mr-1"></i>Ch 5
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-sm text-gray-500 border-t pt-4">
+                    <span><i class="fas fa-user mr-1"></i>{{ note.uploader_name }}</span>
+                    <span><i class="fas fa-calendar mr-1"></i>{{ note.created_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-8 flex justify-center gap-2">
+        {% if notes.has_prev %}
+        <a href="{{ url_for('notes', page=notes.prev_num, course=course_filter) }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Previous</a>
+        {% endif %}
+        <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">Page {{ notes.page }} of {{ notes.pages }}</span>
+        {% if notes.has_next %}
+        <a href="{{ url_for('notes', page=notes.next_num, course=course_filter) }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Next</a>
+        {% endif %}
+    </div>
 </div>
-
-<!-- Pagination -->
-<div class="flex justify-center space-x-2">
-    {% if notes.has_prev %}
-    <a href="{{ url_for('notes', page=notes.prev_num, course=course_filter) }}"
-        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">← Previous</a>
-    {% endif %}
-
-    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">Page {{ notes.page }} of {{ notes.pages }}</span>
-
-    {% if notes.has_next %}
-    <a href="{{ url_for('notes', page=notes.next_num, course=course_filter) }}"
-        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Next →</a>
-    {% endif %}
-</div>
-
-{% else %}
-<div class="text-center py-16">
-    <div class="text-6xl mb-4">📚</div>
-    <h3 class="text-xl font-semibold text-gray-800 mb-2">No notes found</h3>
-    <p class="text-gray-600 mb-6">Be the first to upload notes for this course!</p>
-    <a href="{{ url_for('upload_note') }}"
-        class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-        Upload Notes
-    </a>
-</div>
-{% endif %}
 {% endblock %}

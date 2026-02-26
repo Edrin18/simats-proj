@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -9,6 +9,8 @@ app.config['SECRET_KEY'] = 'studyshare-secret-key-2024'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyshare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+
+ADMIN_PASSWORD = 'edrin1804081672008'
 
 UPLOAD_FOLDERS = {
     'project': 'static/uploads/projects',
@@ -39,18 +41,24 @@ class Project(db.Model):
     uploader_roll = db.Column(db.String(20), nullable=False)
     downloads = db.Column(db.Integer, default=0)
     verified_count = db.Column(db.Integer, default=0)
+    is_admin_upload = db.Column(db.Boolean, default=False)
+    admin_feedback = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_code = db.Column(db.String(20), nullable=False, index=True)
     subject_name = db.Column(db.String(100), nullable=False)
-    unit_number = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    file_path = db.Column(db.String(200), nullable=False)
+    file_path_1 = db.Column(db.String(200))
+    file_path_2 = db.Column(db.String(200))
+    file_path_3 = db.Column(db.String(200))
+    file_path_4 = db.Column(db.String(200))
+    file_path_5 = db.Column(db.String(200))
     uploader_name = db.Column(db.String(100), nullable=False)
     rating_count = db.Column(db.Integer, default=0)
+    is_admin_upload = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Verification(db.Model):
@@ -63,13 +71,16 @@ class Verification(db.Model):
 
 @app.route('/')
 def index():
-    recent_projects = Project.query.order_by(Project.created_at.desc()).limit(6).all()
-    recent_notes = Note.query.order_by(Note.created_at.desc()).limit(6).all()
+    admin_projects = Project.query.filter_by(is_admin_upload=True).order_by(Project.created_at.desc()).limit(6).all()
+    admin_notes = Note.query.filter_by(is_admin_upload=True).order_by(Note.created_at.desc()).limit(6).all()
+    user_projects = Project.query.filter_by(is_admin_upload=False).order_by(Project.created_at.desc()).limit(6).all()
+    user_notes = Note.query.filter_by(is_admin_upload=False).order_by(Note.created_at.desc()).limit(6).all()
     stats = {
         'total_projects': Project.query.count(),
         'total_notes': Note.query.count()
     }
-    return render_template('index.html', projects=recent_projects, notes=recent_notes, stats=stats)
+    return render_template('index.html', admin_projects=admin_projects, admin_notes=admin_notes,
+                         user_projects=user_projects, user_notes=user_notes, stats=stats)
 
 @app.route('/projects')
 def projects():
@@ -78,7 +89,7 @@ def projects():
     sem_filter = request.args.get('semester', type=int)
     prof_filter = request.args.get('professor', '')
     
-    query = Project.query
+    query = Project.query.filter_by(is_admin_upload=False)
     
     if course_filter:
         query = query.filter(Project.course_code.ilike(f'%{course_filter}%'))
@@ -135,7 +146,8 @@ def upload_project():
             report_file=report_filename,
             ppt_file=ppt_filename,
             uploader_name=request.form['uploader_name'],
-            uploader_roll=roll
+            uploader_roll=roll,
+            is_admin_upload=False
         )
         
         db.session.add(project)
@@ -150,7 +162,7 @@ def notes():
     page = request.args.get('page', 1, type=int)
     course_filter = request.args.get('course', '')
     
-    query = Note.query
+    query = Note.query.filter_by(is_admin_upload=False)
     if course_filter:
         query = query.filter(Note.course_code.ilike(f'%{course_filter}%'))
     
@@ -162,25 +174,60 @@ def upload_note():
     if request.method == 'POST':
         roll = request.form['uploader_roll']
         
-        note_file = request.files['note_file']
-        if note_file and note_file.filename:
-            filename = secure_filename(f"{roll}_{note_file.filename}")
-            note_file.save(os.path.join(UPLOAD_FOLDERS['note'], filename))
-            
-            note = Note(
-                course_code=request.form['course_code'].upper(),
-                subject_name=request.form['subject_name'],
-                unit_number=int(request.form['unit_number']),
-                title=request.form['title'],
-                description=request.form.get('description', ''),
-                file_path=filename,
-                uploader_name=request.form['uploader_name']
-            )
-            
-            db.session.add(note)
-            db.session.commit()
-            flash('Notes uploaded successfully!', 'success')
-            return redirect(url_for('notes'))
+        file_1 = request.files.get('note_file_1')
+        file_2 = request.files.get('note_file_2')
+        file_3 = request.files.get('note_file_3')
+        file_4 = request.files.get('note_file_4')
+        file_5 = request.files.get('note_file_5')
+        
+        filename_1 = None
+        filename_2 = None
+        filename_3 = None
+        filename_4 = None
+        filename_5 = None
+        
+        if file_1 and file_1.filename:
+            filename_1 = secure_filename(f"{roll}_ch1_{file_1.filename}")
+            file_1.save(os.path.join(UPLOAD_FOLDERS['note'], filename_1))
+        
+        if file_2 and file_2.filename:
+            filename_2 = secure_filename(f"{roll}_ch2_{file_2.filename}")
+            file_2.save(os.path.join(UPLOAD_FOLDERS['note'], filename_2))
+        
+        if file_3 and file_3.filename:
+            filename_3 = secure_filename(f"{roll}_ch3_{file_3.filename}")
+            file_3.save(os.path.join(UPLOAD_FOLDERS['note'], filename_3))
+        
+        if file_4 and file_4.filename:
+            filename_4 = secure_filename(f"{roll}_ch4_{file_4.filename}")
+            file_4.save(os.path.join(UPLOAD_FOLDERS['note'], filename_4))
+        
+        if file_5 and file_5.filename:
+            filename_5 = secure_filename(f"{roll}_ch5_{file_5.filename}")
+            file_5.save(os.path.join(UPLOAD_FOLDERS['note'], filename_5))
+        
+        if not filename_1:
+            flash('At least Chapter 1 file is required!', 'error')
+            return redirect(url_for('upload_note'))
+        
+        note = Note(
+            course_code=request.form['course_code'].upper(),
+            subject_name=request.form['subject_name'],
+            title=request.form['title'],
+            description=request.form.get('description', ''),
+            file_path_1=filename_1,
+            file_path_2=filename_2,
+            file_path_3=filename_3,
+            file_path_4=filename_4,
+            file_path_5=filename_5,
+            uploader_name=request.form['uploader_name'],
+            is_admin_upload=False
+        )
+        
+        db.session.add(note)
+        db.session.commit()
+        flash('Notes uploaded successfully!', 'success')
+        return redirect(url_for('notes'))
     
     return render_template('upload_note.html')
 
@@ -202,8 +249,11 @@ def download_file(type, id):
             return send_from_directory(UPLOAD_FOLDERS['ppt'], project.ppt_file, as_attachment=True)
     elif type == 'note':
         note = Note.query.get_or_404(id)
-        if note.file_path:
-            return send_from_directory(UPLOAD_FOLDERS['note'], note.file_path, as_attachment=True)
+        chapter = request.args.get('chapter', 1, type=int)
+        file_attr = f'file_path_{chapter}'
+        filename = getattr(note, file_attr)
+        if filename:
+            return send_from_directory(UPLOAD_FOLDERS['note'], filename, as_attachment=True)
     
     flash('File not found!', 'error')
     return redirect(url_for('index'))
@@ -257,6 +307,166 @@ def search():
     ).limit(10).all()
     
     return render_template('search.html', query=query, projects=projects, notes=notes)
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        if request.form['password'] == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            flash('Welcome Admin!', 'success')
+            return redirect(url_for('admin_panel'))
+        else:
+            flash('Invalid password!', 'error')
+    return render_template('admin_login.html')
+
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/admin')
+def admin_panel():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    projects = Project.query.order_by(Project.created_at.desc()).all()
+    notes = Note.query.order_by(Note.created_at.desc()).all()
+    return render_template('admin_panel.html', projects=projects, notes=notes)
+
+@app.route('/admin/delete_project/<int:id>')
+def admin_delete_project(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    project = Project.query.get_or_404(id)
+    db.session.delete(project)
+    db.session.commit()
+    flash('Project deleted successfully!', 'success')
+    return redirect(url_for('admin_panel'))
+
+@app.route('/admin/delete_note/<int:id>')
+def admin_delete_note(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    note = Note.query.get_or_404(id)
+    db.session.delete(note)
+    db.session.commit()
+    flash('Note deleted successfully!', 'success')
+    return redirect(url_for('admin_panel'))
+
+@app.route('/admin/upload_project', methods=['GET', 'POST'])
+def admin_upload_project():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        project_file = request.files.get('project_file')
+        report_file = request.files.get('report_file')
+        ppt_file = request.files.get('ppt_file')
+        
+        project_filename = None
+        report_filename = None
+        ppt_filename = None
+        
+        if project_file and project_file.filename:
+            project_filename = secure_filename(f"ADMIN_{project_file.filename}")
+            project_file.save(os.path.join(UPLOAD_FOLDERS['project'], project_filename))
+        
+        if report_file and report_file.filename:
+            report_filename = secure_filename(f"ADMIN_{report_file.filename}")
+            report_file.save(os.path.join(UPLOAD_FOLDERS['report'], report_filename))
+        
+        if ppt_file and ppt_file.filename:
+            ppt_filename = secure_filename(f"ADMIN_{ppt_file.filename}")
+            ppt_file.save(os.path.join(UPLOAD_FOLDERS['ppt'], ppt_filename))
+        
+        project = Project(
+            course_code=request.form['course_code'].upper(),
+            subject_name=request.form['subject_name'],
+            professor=request.form['professor'],
+            semester=int(request.form['semester']),
+            description=request.form['description'],
+            tech_stack=request.form['tech_stack'],
+            github_link=request.form.get('github_link', ''),
+            demo_video=request.form.get('demo_video', ''),
+            project_file=project_filename,
+            report_file=report_filename,
+            ppt_file=ppt_filename,
+            uploader_name='Admin',
+            uploader_roll='ADMIN',
+            is_admin_upload=True,
+            admin_feedback=request.form.get('admin_feedback', '')
+        )
+        
+        db.session.add(project)
+        db.session.commit()
+        flash('Admin Project uploaded successfully!', 'success')
+        return redirect(url_for('admin_panel'))
+    
+    return render_template('admin_upload_project.html')
+
+@app.route('/admin/upload_note', methods=['GET', 'POST'])
+def admin_upload_note():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        file_1 = request.files.get('note_file_1')
+        file_2 = request.files.get('note_file_2')
+        file_3 = request.files.get('note_file_3')
+        file_4 = request.files.get('note_file_4')
+        file_5 = request.files.get('note_file_5')
+        
+        filename_1 = None
+        filename_2 = None
+        filename_3 = None
+        filename_4 = None
+        filename_5 = None
+        
+        if file_1 and file_1.filename:
+            filename_1 = secure_filename(f"ADMIN_ch1_{file_1.filename}")
+            file_1.save(os.path.join(UPLOAD_FOLDERS['note'], filename_1))
+        
+        if file_2 and file_2.filename:
+            filename_2 = secure_filename(f"ADMIN_ch2_{file_2.filename}")
+            file_2.save(os.path.join(UPLOAD_FOLDERS['note'], filename_2))
+        
+        if file_3 and file_3.filename:
+            filename_3 = secure_filename(f"ADMIN_ch3_{file_3.filename}")
+            file_3.save(os.path.join(UPLOAD_FOLDERS['note'], filename_3))
+        
+        if file_4 and file_4.filename:
+            filename_4 = secure_filename(f"ADMIN_ch4_{file_4.filename}")
+            file_4.save(os.path.join(UPLOAD_FOLDERS['note'], filename_4))
+        
+        if file_5 and file_5.filename:
+            filename_5 = secure_filename(f"ADMIN_ch5_{file_5.filename}")
+            file_5.save(os.path.join(UPLOAD_FOLDERS['note'], filename_5))
+        
+        if not filename_1:
+            flash('At least Chapter 1 file is required!', 'error')
+            return redirect(url_for('admin_upload_note'))
+        
+        note = Note(
+            course_code=request.form['course_code'].upper(),
+            subject_name=request.form['subject_name'],
+            title=request.form['title'],
+            description=request.form.get('description', ''),
+            file_path_1=filename_1,
+            file_path_2=filename_2,
+            file_path_3=filename_3,
+            file_path_4=filename_4,
+            file_path_5=filename_5,
+            uploader_name='Admin',
+            is_admin_upload=True
+        )
+        
+        db.session.add(note)
+        db.session.commit()
+        flash('Admin Note uploaded successfully!', 'success')
+        return redirect(url_for('admin_panel'))
+    
+    return render_template('admin_upload_note.html')
 
 if __name__ == '__main__':
     with app.app_context():
