@@ -6,74 +6,41 @@
         <h1 class="text-3xl font-bold text-gray-800 mb-6">Upload Project</h1>
 
         <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl shadow-lg p-8">
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Course Code *</label>
-                    <input type="text" name="course_code" required placeholder="e.g., CS101"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Subject Name *</label>
-                    <input type="text" name="subject_name" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Professor Name *</label>
-                    <input type="text" name="professor" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Semester *</label>
-                    <select name="semester" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">Select Semester</option>
-                        {% for i in range(1, 9) %}
-                        <option value="{{ i }}">Semester {{ i }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Course Name *</label>
+                <input type="text" name="course_name" required placeholder="e.g., Data Structures"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
 
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Description *</label>
-                <textarea name="description" required rows="4"
-                    placeholder="Describe your project, features, and implementation details..."
+                <textarea name="description" required rows="4" placeholder="Describe your project..."
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
             </div>
 
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Tech Stack *</label>
-                <input type="text" name="tech_stack" required placeholder="e.g., Python, Flask, MySQL, HTML/CSS"
+                <input type="text" name="tech_stack" required placeholder="e.g., Python, Flask, MySQL"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
 
             <div class="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">GitHub Link (Optional)</label>
-                    <input type="url" name="github_link" placeholder="https://github.com/username/repo"
+                    <label class="block text-gray-700 font-semibold mb-2">GitHub Link</label>
+                    <input type="url" name="github_link" placeholder="https://github.com/..."
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Demo Video Link (Optional)</label>
+                    <label class="block text-gray-700 font-semibold mb-2">Demo Video Link</label>
                     <input type="url" name="demo_video" placeholder="YouTube or Drive link"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Your Name *</label>
-                    <input type="text" name="uploader_name" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Roll Number *</label>
-                    <input type="text" name="uploader_roll" required placeholder="e.g., 20CS001"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Your Name *</label>
+                <input type="text" name="uploader_name" required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
 
             <div class="space-y-4 mb-6">
@@ -88,7 +55,7 @@
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">PPT File (PPT/PPTX)</label>
+                    <label class="block text-gray-700 font-semibold mb-2">PPT File</label>
                     <input type="file" name="ppt_file" accept=".ppt,.pptx"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                 </div>

@@ -11,23 +11,18 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-        <form method="get" class="grid md:grid-cols-4 gap-4">
-            <input type="text" name="course" placeholder="Course Code (e.g., CS101)" value="{{ course_filter }}"
-                class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-            <input type="number" name="semester" placeholder="Semester (1-8)" value="{{ sem_filter }}"
-                class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-            <input type="text" name="professor" placeholder="Professor Name" value="{{ prof_filter }}"
-                class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-            <div class="flex gap-2">
-                <button type="submit"
-                    class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition flex-1">
-                    <i class="fas fa-filter mr-2"></i>Filter
-                </button>
-                <a href="{{ url_for('projects') }}"
-                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
-                    <i class="fas fa-reset"></i>Clear
-                </a>
-            </div>
+        <form method="get" class="flex gap-4">
+            <input type="text" name="course" placeholder="Search by Course Name" value="{{ course_filter }}"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                <i class="fas fa-search mr-2"></i>Search
+            </button>
+            {% if course_filter %}
+            <a href="{{ url_for('projects') }}"
+                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                Clear
+            </a>
+            {% endif %}
         </form>
     </div>
 
@@ -37,21 +32,18 @@
             <div class="p-6">
                 <div class="flex justify-between items-start mb-3">
                     <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">{{
-                        project.course_code }}</span>
+                        project.course_name }}</span>
                     <div class="flex items-center gap-2">
                         {% if project.verified_count > 0 %}
-                        <span class="text-green-600 text-sm" title="Verified working"><i
-                                class="fas fa-check-circle"></i> {{ project.verified_count }}</span>
+                        <span class="text-green-600 text-sm"><i class="fas fa-check-circle"></i> {{
+                            project.verified_count }}</span>
                         {% endif %}
                         <span class="text-gray-500 text-sm"><i class="fas fa-download"></i> {{ project.downloads
                             }}</span>
                     </div>
                 </div>
-                <h3 class="text-xl font-bold mb-2 text-gray-800">{{ project.subject_name }}</h3>
                 <p class="text-gray-600 mb-3 line-clamp-2">{{ project.description }}</p>
                 <div class="space-y-2 text-sm text-gray-500 mb-4">
-                    <div><i class="fas fa-user-tie mr-2"></i>{{ project.professor }}</div>
-                    <div><i class="fas fa-calendar mr-2"></i>Semester {{ project.semester }}</div>
                     <div><i class="fas fa-code mr-2"></i>{{ project.tech_stack }}</div>
                     <div><i class="fas fa-user mr-2"></i>By {{ project.uploader_name }}</div>
                 </div>
@@ -66,13 +58,13 @@
 
     <div class="mt-8 flex justify-center gap-2">
         {% if projects.has_prev %}
-        <a href="{{ url_for('projects', page=projects.prev_num, course=course_filter, semester=sem_filter, professor=prof_filter) }}"
+        <a href="{{ url_for('projects', page=projects.prev_num, course=course_filter) }}"
             class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Previous</a>
         {% endif %}
         <span class="px-4 py-2 bg-purple-600 text-white rounded-lg">Page {{ projects.page }} of {{ projects.pages
             }}</span>
         {% if projects.has_next %}
-        <a href="{{ url_for('projects', page=projects.next_num, course=course_filter, semester=sem_filter, professor=prof_filter) }}"
+        <a href="{{ url_for('projects', page=projects.next_num, course=course_filter) }}"
             class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Next</a>
         {% endif %}
     </div>

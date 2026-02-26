@@ -43,16 +43,13 @@
             <div class="p-6">
                 <div class="flex justify-between items-start mb-3">
                     <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">{{
-                        project.course_code }}</span>
+                        project.course_name }}</span>
                     <span class="text-gray-500 text-sm"><i class="fas fa-check-circle text-green-500 mr-1"></i>{{
                         project.verified_count }} verified</span>
                 </div>
-                <h4 class="text-xl font-bold mb-2 text-gray-800">{{ project.subject_name }}</h4>
                 <p class="text-gray-600 mb-3 line-clamp-2">{{ project.description }}</p>
                 <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                    <i class="fas fa-user-tie"></i> {{ project.professor }}
-                    <span class="mx-2">|</span>
-                    <i class="fas fa-calendar"></i> Sem {{ project.semester }}
+                    <i class="fas fa-code"></i> {{ project.tech_stack }}
                 </div>
                 {% if project.admin_feedback %}
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
@@ -78,9 +75,11 @@
             <div class="p-6">
                 <span
                     class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold mb-3 inline-block">{{
-                    note.course_code }}</span>
+                    note.course_name }}</span>
                 <h4 class="text-xl font-bold mb-2 text-gray-800">{{ note.title }}</h4>
-                <p class="text-gray-600 mb-3">{{ note.subject_name }}</p>
+                {% if note.description %}
+                <p class="text-gray-500 text-sm mb-3">{{ note.description }}</p>
+                {% endif %}
                 <div class="flex gap-2 flex-wrap mb-4">
                     {% if note.file_path_1 %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Ch
                         1</span>{% endif %}
@@ -116,13 +115,14 @@
             <div class="p-6">
                 <div class="flex justify-between items-start mb-3">
                     <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">{{
-                        project.course_code }}</span>
+                        project.course_name }}</span>
                     <span class="text-gray-500 text-sm"><i class="fas fa-check-circle text-green-500 mr-1"></i>{{
                         project.verified_count }}</span>
                 </div>
-                <h4 class="text-xl font-bold mb-2 text-gray-800">{{ project.subject_name }}</h4>
                 <p class="text-gray-600 mb-3 line-clamp-2">{{ project.description }}</p>
                 <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <i class="fas fa-code"></i> {{ project.tech_stack }}
+                    <span class="mx-2">|</span>
                     <i class="fas fa-user"></i> {{ project.uploader_name }}
                 </div>
                 <a href="{{ url_for('project_detail', id=project.id) }}"
@@ -147,9 +147,11 @@
             <div class="p-6">
                 <span
                     class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold mb-3 inline-block">{{
-                    note.course_code }}</span>
+                    note.course_name }}</span>
                 <h4 class="text-xl font-bold mb-2 text-gray-800">{{ note.title }}</h4>
-                <p class="text-gray-600 mb-3">{{ note.subject_name }}</p>
+                {% if note.description %}
+                <p class="text-gray-500 text-sm mb-3">{{ note.description }}</p>
+                {% endif %}
                 <div class="flex gap-2 flex-wrap mb-4">
                     {% if note.file_path_1 %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Ch
                         1</span>{% endif %}
@@ -194,7 +196,7 @@
                     <i class="fas fa-search"></i>
                 </div>
                 <h3 class="font-semibold text-lg mb-2">Discover</h3>
-                <p class="text-gray-600">Find resources by course code</p>
+                <p class="text-gray-600">Find resources by course name</p>
             </div>
             <div class="text-center">
                 <div

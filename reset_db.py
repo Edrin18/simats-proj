@@ -1,41 +1,57 @@
 import os
-import sqlite3
+import shutil
 
-# Find the database file
-db_path = 'studyshare.db'
-instance_db_path = os.path.join('instance', 'studyshare.db')
+# List all possible database locations
+possible_paths = [
+    'studyshare.db',
+    'instance/studyshare.db',
+    '../studyshare.db',
+    '../../studyshare.db',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studyshare.db'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'studyshare.db'),
+]
 
-# Check if database exists in current directory
-if os.path.exists(db_path):
-    print(f"Found database at: {os.path.abspath(db_path)}")
-    try:
-        os.remove(db_path)
-        print("✓ Database deleted successfully!")
-    except Exception as e:
-        print(f"Error deleting: {e}")
+print("Searching for database files...\n")
 
-# Check if database exists in instance folder
-elif os.path.exists(instance_db_path):
-    print(f"Found database at: {os.path.abspath(instance_db_path)}")
-    try:
-        os.remove(instance_db_path)
-        print("✓ Database deleted successfully!")
-    except Exception as e:
-        print(f"Error deleting: {e}")
+found = False
+for path in possible_paths:
+    abs_path = os.path.abspath(path)
+    if os.path.exists(path):
+        print(f"✓ Found: {abs_path}")
+        try:
+            os.remove(path)
+            print(f"✓ Deleted successfully!\n")
+            found = True
+        except Exception as e:
+            print(f"✗ Error deleting: {e}\n")
+    else:
+        print(f"✗ Not found: {abs_path}")
 
-else:
-    print("Database file not found in standard locations.")
-    print("Searching for any .db files...")
+# Also search entire project directory
+print("\n" + "="*50)
+print("Searching entire project for .db files...")
+print("="*50 + "\n")
+
+project_dir = os.path.dirname(os.path.abspath(__file__))
+for root, dirs, files in os.walk(project_dir):
+    # Skip Python virtual environment folders
+    if 'venv' in root or 'env' in root or '__pycache__' in root or 'site-packages' in root:
+        continue
     
-    # Search for any .db files
-    found = False
-    for root, dirs, files in os.walk('.'):
-        for file in files:
-            if file.endswith('.db'):
-                print(f"Found: {os.path.join(root, file)}")
+    for file in files:
+        if file.endswith('.db'):
+            full_path = os.path.join(root, file)
+            print(f"✓ Found database: {full_path}")
+            try:
+                os.remove(full_path)
+                print(f"✓ Deleted: {full_path}\n")
                 found = True
-    
-    if not found:
-        print("No .db files found. The database will be created fresh when you run app.py")
+            except Exception as e:
+                print(f"✗ Could not delete: {e}\n")
 
+if not found:
+    print("\nNo database files found. The new database will be created when you run app.py")
+else:
+    print("\n✓ All database files deleted!")
+    
 print("\nYou can now run: python app.py")

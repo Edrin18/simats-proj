@@ -26,10 +26,7 @@ db = SQLAlchemy(app)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    course_code = db.Column(db.String(20), nullable=False, index=True)
-    subject_name = db.Column(db.String(100), nullable=False)
-    professor = db.Column(db.String(100), nullable=False)
-    semester = db.Column(db.Integer, nullable=False)
+    course_name = db.Column(db.String(100), nullable=False, index=True)
     description = db.Column(db.Text, nullable=False)
     tech_stack = db.Column(db.String(200), nullable=False)
     github_link = db.Column(db.String(500))
@@ -38,7 +35,6 @@ class Project(db.Model):
     ppt_file = db.Column(db.String(200))
     demo_video = db.Column(db.String(500))
     uploader_name = db.Column(db.String(100), nullable=False)
-    uploader_roll = db.Column(db.String(20), nullable=False)
     downloads = db.Column(db.Integer, default=0)
     verified_count = db.Column(db.Integer, default=0)
     is_admin_upload = db.Column(db.Boolean, default=False)
@@ -47,8 +43,7 @@ class Project(db.Model):
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    course_code = db.Column(db.String(20), nullable=False, index=True)
-    subject_name = db.Column(db.String(100), nullable=False)
+    course_name = db.Column(db.String(100), nullable=False, index=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     file_path_1 = db.Column(db.String(200))
@@ -86,21 +81,14 @@ def index():
 def projects():
     page = request.args.get('page', 1, type=int)
     course_filter = request.args.get('course', '')
-    sem_filter = request.args.get('semester', type=int)
-    prof_filter = request.args.get('professor', '')
     
     query = Project.query.filter_by(is_admin_upload=False)
     
     if course_filter:
-        query = query.filter(Project.course_code.ilike(f'%{course_filter}%'))
-    if sem_filter:
-        query = query.filter_by(semester=sem_filter)
-    if prof_filter:
-        query = query.filter(Project.professor.ilike(f'%{prof_filter}%'))
+        query = query.filter(Project.course_name.ilike(f'%{course_filter}%'))
     
     projects = query.order_by(Project.created_at.desc()).paginate(page=page, per_page=12)
-    return render_template('projects.html', projects=projects, 
-                         course_filter=course_filter, sem_filter=sem_filter, prof_filter=prof_filter)
+    return render_template('projects.html', projects=projects, course_filter=course_filter)
 
 @app.route('/project/<int:id>')
 def project_detail(id):
@@ -111,7 +99,7 @@ def project_detail(id):
 @app.route('/upload_project', methods=['GET', 'POST'])
 def upload_project():
     if request.method == 'POST':
-        roll = request.form['uploader_roll']
+        name = request.form['uploader_name']
         
         project_file = request.files.get('project_file')
         report_file = request.files.get('report_file')
@@ -122,22 +110,19 @@ def upload_project():
         ppt_filename = None
         
         if project_file and project_file.filename:
-            project_filename = secure_filename(f"{roll}_{project_file.filename}")
+            project_filename = secure_filename(f"{name}_{project_file.filename}")
             project_file.save(os.path.join(UPLOAD_FOLDERS['project'], project_filename))
         
         if report_file and report_file.filename:
-            report_filename = secure_filename(f"{roll}_{report_file.filename}")
+            report_filename = secure_filename(f"{name}_{report_file.filename}")
             report_file.save(os.path.join(UPLOAD_FOLDERS['report'], report_filename))
         
         if ppt_file and ppt_file.filename:
-            ppt_filename = secure_filename(f"{roll}_{ppt_file.filename}")
+            ppt_filename = secure_filename(f"{name}_{ppt_file.filename}")
             ppt_file.save(os.path.join(UPLOAD_FOLDERS['ppt'], ppt_filename))
         
         project = Project(
-            course_code=request.form['course_code'].upper(),
-            subject_name=request.form['subject_name'],
-            professor=request.form['professor'],
-            semester=int(request.form['semester']),
+            course_name=request.form['course_name'],
             description=request.form['description'],
             tech_stack=request.form['tech_stack'],
             github_link=request.form.get('github_link', ''),
@@ -145,8 +130,7 @@ def upload_project():
             project_file=project_filename,
             report_file=report_filename,
             ppt_file=ppt_filename,
-            uploader_name=request.form['uploader_name'],
-            uploader_roll=roll,
+            uploader_name=name,
             is_admin_upload=False
         )
         
@@ -164,7 +148,7 @@ def notes():
     
     query = Note.query.filter_by(is_admin_upload=False)
     if course_filter:
-        query = query.filter(Note.course_code.ilike(f'%{course_filter}%'))
+        query = query.filter(Note.course_name.ilike(f'%{course_filter}%'))
     
     notes = query.order_by(Note.created_at.desc()).paginate(page=page, per_page=12)
     return render_template('notes.html', notes=notes, course_filter=course_filter)
@@ -172,7 +156,7 @@ def notes():
 @app.route('/upload_note', methods=['GET', 'POST'])
 def upload_note():
     if request.method == 'POST':
-        roll = request.form['uploader_roll']
+        name = request.form['uploader_name']
         
         file_1 = request.files.get('note_file_1')
         file_2 = request.files.get('note_file_2')
@@ -187,23 +171,23 @@ def upload_note():
         filename_5 = None
         
         if file_1 and file_1.filename:
-            filename_1 = secure_filename(f"{roll}_ch1_{file_1.filename}")
+            filename_1 = secure_filename(f"{name}_ch1_{file_1.filename}")
             file_1.save(os.path.join(UPLOAD_FOLDERS['note'], filename_1))
         
         if file_2 and file_2.filename:
-            filename_2 = secure_filename(f"{roll}_ch2_{file_2.filename}")
+            filename_2 = secure_filename(f"{name}_ch2_{file_2.filename}")
             file_2.save(os.path.join(UPLOAD_FOLDERS['note'], filename_2))
         
         if file_3 and file_3.filename:
-            filename_3 = secure_filename(f"{roll}_ch3_{file_3.filename}")
+            filename_3 = secure_filename(f"{name}_ch3_{file_3.filename}")
             file_3.save(os.path.join(UPLOAD_FOLDERS['note'], filename_3))
         
         if file_4 and file_4.filename:
-            filename_4 = secure_filename(f"{roll}_ch4_{file_4.filename}")
+            filename_4 = secure_filename(f"{name}_ch4_{file_4.filename}")
             file_4.save(os.path.join(UPLOAD_FOLDERS['note'], filename_4))
         
         if file_5 and file_5.filename:
-            filename_5 = secure_filename(f"{roll}_ch5_{file_5.filename}")
+            filename_5 = secure_filename(f"{name}_ch5_{file_5.filename}")
             file_5.save(os.path.join(UPLOAD_FOLDERS['note'], filename_5))
         
         if not filename_1:
@@ -211,8 +195,7 @@ def upload_note():
             return redirect(url_for('upload_note'))
         
         note = Note(
-            course_code=request.form['course_code'].upper(),
-            subject_name=request.form['subject_name'],
+            course_name=request.form['course_name'],
             title=request.form['title'],
             description=request.form.get('description', ''),
             file_path_1=filename_1,
@@ -220,7 +203,7 @@ def upload_note():
             file_path_3=filename_3,
             file_path_4=filename_4,
             file_path_5=filename_5,
-            uploader_name=request.form['uploader_name'],
+            uploader_name=name,
             is_admin_upload=False
         )
         
@@ -291,17 +274,14 @@ def search():
     
     projects = Project.query.filter(
         db.or_(
-            Project.course_code.ilike(f'%{query}%'),
-            Project.subject_name.ilike(f'%{query}%'),
-            Project.professor.ilike(f'%{query}%'),
+            Project.course_name.ilike(f'%{query}%'),
             Project.tech_stack.ilike(f'%{query}%')
         )
     ).limit(10).all()
     
     notes = Note.query.filter(
         db.or_(
-            Note.course_code.ilike(f'%{query}%'),
-            Note.subject_name.ilike(f'%{query}%'),
+            Note.course_name.ilike(f'%{query}%'),
             Note.title.ilike(f'%{query}%')
         )
     ).limit(10).all()
@@ -381,10 +361,7 @@ def admin_upload_project():
             ppt_file.save(os.path.join(UPLOAD_FOLDERS['ppt'], ppt_filename))
         
         project = Project(
-            course_code=request.form['course_code'].upper(),
-            subject_name=request.form['subject_name'],
-            professor=request.form['professor'],
-            semester=int(request.form['semester']),
+            course_name=request.form['course_name'],
             description=request.form['description'],
             tech_stack=request.form['tech_stack'],
             github_link=request.form.get('github_link', ''),
@@ -393,7 +370,6 @@ def admin_upload_project():
             report_file=report_filename,
             ppt_file=ppt_filename,
             uploader_name='Admin',
-            uploader_roll='ADMIN',
             is_admin_upload=True,
             admin_feedback=request.form.get('admin_feedback', '')
         )
@@ -448,8 +424,7 @@ def admin_upload_note():
             return redirect(url_for('admin_upload_note'))
         
         note = Note(
-            course_code=request.form['course_code'].upper(),
-            subject_name=request.form['subject_name'],
+            course_name=request.form['course_name'],
             title=request.form['title'],
             description=request.form.get('description', ''),
             file_path_1=filename_1,

@@ -31,7 +31,7 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uploader</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
@@ -40,8 +40,8 @@
             <tbody class="divide-y divide-gray-200">
                 {% for project in projects %}
                 <tr>
-                    <td class="px-6 py-4">{{ project.course_code }}</td>
-                    <td class="px-6 py-4">{{ project.subject_name }}</td>
+                    <td class="px-6 py-4">{{ project.course_name }}</td>
+                    <td class="px-6 py-4 truncate max-w-xs">{{ project.description }}</td>
                     <td class="px-6 py-4">{{ project.uploader_name }}</td>
                     <td class="px-6 py-4">
                         {% if project.is_admin_upload %}
@@ -78,7 +78,7 @@
             <tbody class="divide-y divide-gray-200">
                 {% for note in notes %}
                 <tr>
-                    <td class="px-6 py-4">{{ note.course_code }}</td>
+                    <td class="px-6 py-4">{{ note.course_name }}</td>
                     <td class="px-6 py-4">{{ note.title }}</td>
                     <td class="px-6 py-4">{{ note.uploader_name }}</td>
                     <td class="px-6 py-4">

@@ -12,7 +12,7 @@
 
     <div class="bg-white rounded-xl shadow-md p-6 mb-8">
         <form method="get" class="flex gap-4">
-            <input type="text" name="course" placeholder="Search by Course Code" value="{{ course_filter }}"
+            <input type="text" name="course" placeholder="Search by Course Name" value="{{ course_filter }}"
                 class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                 <i class="fas fa-search mr-2"></i>Search
@@ -32,9 +32,8 @@
             <div class="p-6">
                 <span
                     class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold mb-3 inline-block">{{
-                    note.course_code }}</span>
+                    note.course_name }}</span>
                 <h3 class="text-xl font-bold mb-2 text-gray-800">{{ note.title }}</h3>
-                <p class="text-gray-600 mb-2">{{ note.subject_name }}</p>
                 {% if note.description %}
                 <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ note.description }}</p>
                 {% endif %}

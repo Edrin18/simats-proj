@@ -4,38 +4,12 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
         <h1 class="text-3xl font-bold text-gray-800 mb-6">Upload Featured Project</h1>
-        <p class="text-gray-600 mb-6">This project will appear in the "Admin Picks" section on homepage.</p>
 
         <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl shadow-lg p-8">
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Course Code *</label>
-                    <input type="text" name="course_code" required placeholder="e.g., CS101"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Subject Name *</label>
-                    <input type="text" name="subject_name" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Professor Name *</label>
-                    <input type="text" name="professor" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Semester *</label>
-                    <select name="semester" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">Select Semester</option>
-                        {% for i in range(1, 9) %}
-                        <option value="{{ i }}">Semester {{ i }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Course Name *</label>
+                <input type="text" name="course_name" required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
 
             <div class="mb-6">
@@ -46,13 +20,13 @@
 
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Tech Stack *</label>
-                <input type="text" name="tech_stack" required placeholder="e.g., Python, Flask, MySQL"
+                <input type="text" name="tech_stack" required
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
 
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Admin Feedback / Notes</label>
-                <textarea name="admin_feedback" rows="3" placeholder="Why this project is featured, special notes, etc."
+                <textarea name="admin_feedback" rows="3"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-yellow-50"></textarea>
             </div>
 
@@ -71,12 +45,12 @@
 
             <div class="space-y-4 mb-6">
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Project File (ZIP/RAR)</label>
+                    <label class="block text-gray-700 font-semibold mb-2">Project File</label>
                     <input type="file" name="project_file" accept=".zip,.rar,.7z"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">Report File (PDF)</label>
+                    <label class="block text-gray-700 font-semibold mb-2">Report File</label>
                     <input type="file" name="report_file" accept=".pdf"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
